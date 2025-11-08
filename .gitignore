@@ -1,0 +1,9 @@
+# Ignore only the virtual environment
+env/
+venv/
+
+# Optional: caches and system junk
+__pycache__/
+*.pyc
+.vscode/
+.DS_Store
