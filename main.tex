@@ -1,0 +1,287 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{MedVQA+: Modality-Balanced Medical Visual Question Answering Using ViT-B/16 and ClinicalBERT}
+
+\author{
+    \IEEEauthorblockN{Sai Abhiram Malladi, Dinesh Kumar Barla, Vijay Deepak Karnatakapu, Naveen Naraboina}
+    \IEEEauthorblockA{
+        Masters in Computer Science \\
+        University of Alabama at Birmingham \\
+        }
+    }
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+MedVQA+ is a modality-balanced medical visual question answering (MedVQA) model designed to address the over-reliance on either visual or textual cues in clinical settings. The model integrates ViT-B/16 for image representation, ClinicalBERT for medical language encoding, a FiLM-based fusion mechanism, a DecisionScaler gating module that explicitly regulates modality contributions, and a retrieval-augmented generation (RAG) system that provides clinical context from a medical knowledge corpus. Experiments on the VQA-RAD dataset demonstrate improved answer accuracy in the Top-50 setting and substantially increased gate entropy compared to a baseline model, indicating more balanced multimodal reasoning and reduced text-only collapse.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Medical Visual Question Answering, Multimodal Learning, Vision Transformer, ClinicalBERT, Radiology AI, FiLM Fusion, Gating, Retrieval-Augmented Generation
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Medical Visual Question Answering (MedVQA) aims to answer clinically relevant questions about radiology images using both visual and textual information. In contrast to general-domain VQA, MedVQA requires grounding in anatomical structures, pathologies, and medical terminology to be clinically useful and trustworthy.
+
+Existing MedVQA systems frequently exhibit \emph{modality imbalance}, in which the model relies predominantly on either the image or the question text. In practice, models often collapse to text-only behavior, achieving seemingly good accuracy by exploiting dataset priors while ignoring image evidence. This reduces clinical reliability and interpretability, since physicians expect decisions to be grounded in both the image and the question.
+
+To address these limitations, we propose MedVQA+, a modality-balanced multimodal architecture that integrates:
+\begin{itemize}
+    \item ViT-B/16 for high-level radiology image representation,
+    \item ClinicalBERT for domain-specific question encoding,
+    \item FiLM-based fusion to condition visual features on textual context,
+    \item A DecisionScaler gating mechanism with entropy regularization to encourage balanced modality usage, and
+    \item A retrieval-augmented generation (RAG) system that retrieves relevant clinical knowledge to provide interpretable context for predictions.
+\end{itemize}
+
+We evaluate MedVQA+ on the VQA-RAD dataset in both Closed-answer and Top-50 answer settings. MedVQA+ improves Top-50 accuracy by 10.5\% over a baseline model while achieving substantially higher gating entropy, demonstrating more balanced multimodal reasoning.
+
+\subsection{Related Work}
+
+Research in Medical Visual Question Answering (MedVQA) builds upon advances in both general-domain VQA and medical imaging analysis, while also facing unique challenges due to clinical terminology, limited data, and the need for safety and interpretability. In this section, we review prior work in (a) medical VQA systems, (b) multi-modal fusion strategies, (c) methods for handling modality imbalance, and (d) domain-specific encoders for images and clinical text. 
+
+ A. Medical Visual Question Answering
+Early work in VQA focused on natural images (e.g., MS-COCO, VQA v1/v2), where questions are often about everyday objects, colors, counts, or spatial relations. These models typically combine CNN-based image encoders with RNN/BERT-based question encoders and a fusion layer for answer prediction. When this paradigm was transferred into the medical imaging domain, several challenges emerged: much smaller datasets, specialized medical language, and subtle visual cues in radiology scans.
+
+Datasets like VQA-RAD introduced clinically generated question–answer pairs on radiology images, enabling initial exploration of MedVQA models adapted from general VQA architectures. Many of these early systems treated MedVQA as a straightforward classification or retrieval problem, using generic CNN backbones and standard word embeddings. While they achieved moderate accuracy, they often failed to capture deeper clinical semantics (e.g., “atelectasis,” “pleural effusion”) and tended to exploit shortcuts in the data distribution rather than performing true multi-modal reasoning. 
+
+Subsequent work incorporated attention mechanisms and more sophisticated encoders, improving performance on closed-ended questions (e.g., yes/no) but still struggled with open-ended questions requiring specific anatomical or diagnostic terms. These limitations motivated architectures that can better exploit medical domain knowledge and balance contributions from both modalities.
+
+B. Multi-Modal Fusion Strategies
+A central component of VQA and MedVQA systems is the fusion mechanism that combines visual and textual representations. Several families of fusion methods have been widely explored:
+ 
+ 1.	Feature Concatenation
+One of the simplest approaches concatenates the image and question embeddings followed by fully connected layers. While easy to implement and computationally efficient, plain concatenation often limits the model’s ability to capture higher-order interactions between modalities. It also provides no explicit control over how much each modality contributes, which can exacerbate modality imbalance. 
+ 
+ 2.	Bilinear Pooling
+Methods such as Multimodal Compact Bilinear (MCB) pooling model pairwise interactions between every dimension of the image and text feature vectors. These approaches can capture richer cross-modal correlations but at the cost of increased computational and memory complexity. In medical settings, where datasets are relatively small, such high-capacity fusion mechanisms risk overfitting and can be difficult to train stably.
+ 
+ 3.	Attention-Based Fusion
+Co-attention and self-attention mechanisms have become standard in VQA, allowing the model to attend to relevant spatial regions in the image and key tokens in the question. In MedVQA, attention mechanisms can highlight clinically important image regions (e.g., lesions, lungs, brain structures) and focus on medically significant words in the question. However, attention alone does not guarantee balanced reliance on both modalities; the model may still learn to focus on one modality if it provides an easier shortcut to the answer. 
+
+4.	FiLM-Based Conditioning
+Feature-wise Linear Modulation (FiLM) modulates visual features with parameters derived from the text, effectively “conditioning” the image representation on the question. This technique has been shown to support more flexible and interpretable reasoning in visual tasks. In our MedVQA+ architecture, FiLM serves as the base fusion mechanism, with the DecisionScaler gate further controlling the relative weighting of vision and text, extending FiLM from simple conditioning to explicit, learnable modality balancing. 
+
+
+C. Modality Imbalance in Multi-Modal Learning
+Modality imbalance—where one modality dominates learning and the other is underused—is a well-documented issue in multi-modal systems. In the context of MedVQA, models often gravitate toward relying heavily on the textual question because questions can encode strong priors (e.g., certain abnormalities being far more common) and because language-based patterns are sometimes easier to exploit than subtle image features. This leads to modality collapse, where the visual pathway becomes effectively ignored. 
+Prior work has explored several strategies to address this problem:
+•	Modality-Specific Losses
+Some methods add auxiliary losses to encourage each modality to learn informative features. For example, image-only or text-only classification heads may be used during training to ensure both streams remain meaningful, though this does not necessarily enforce balanced use at the final decision level.
+•	Gradient Balancing and Modality Dropout
+Techniques such as gradient normalization or modality dropout have been proposed to prevent any single modality from dominating the optimization process. While helpful, these methods operate mostly at the training dynamics level and do not provide an explicit, interpretable signal about how much each modality contributes for a given prediction.
+
+•	Attention-Based Reweighting
+Multi-head attention and cross-attention can implicitly modulate the importance of each modality. However, as with standard attention-based fusion, these approaches still risk converging to solutions where one modality receives near-zero effective weight if the dataset encourages such shortcuts.
+In contrast, MedVQA+ introduces a gated DecisionScaler module that explicitly computes scalar weights for the visual and textual modalities for each input. By combining balanced initialization, LayerNorm, and entropy regularization, the gate is encouraged to maintain non-degenerate, interpretable weights (e.g., ~0.5/0.5 rather than 0.01/0.99), directly addressing the modality collapse issue rather than only mitigating it indirectly. 
+
+
+D. Domain-Specific Encoders for Medical Vision and Language
+Another line of work focuses on improving MedVQA performance by strengthening the unimodal encoders before fusion.
+1.	Vision Encoders in Medical Imaging
+Traditional MedVQA systems often rely on CNN backbones (e.g., ResNet) pretrained on natural images. Recently, Vision Transformers (ViTs) have shown strong performance in both natural and medical imaging tasks, owing to their ability to model long-range dependencies and global context. In MedVQA+, a ViT-B/16 backbone is used as the visual encoder, providing a high-capacity representation of radiology images while remaining compatible with token-style fusion architectures commonly used in multi-modal models. 
+2.	Clinical Language Models
+General-domain word embeddings or BERT models often fail to capture the nuances of clinical language (e.g., abbreviations, rare conditions, radiology-specific phrasing). To address this, clinical language models such as ClinicalBERT are trained or fine-tuned on large corpora of electronic health records and clinical notes. These models better encode medical entities, relations, and context. In MedVQA+, ClinicalBERT is used to encode questions, ensuring that the textual modality carries rich, domain-informed representations that align well with clinical semantics. 
+
+3.	Medical VQA Datasets
+Datasets like VQA-RAD provide paired radiology images and expert-generated questions and answers, serving as a benchmark for evaluating MedVQA systems. However, the relatively small number of samples, label imbalance, and restricted vocabulary pose challenges for training deep models. These constraints increase the risk of overfitting and encourage models to exploit textual shortcuts, further motivating our focus on robust gating and regularization to maintain balanced modality usage under limited data conditions. 
+
+
+
+
+
+\section{Methodology}
+
+MedVQA+ is a multimodal architecture composed of a vision encoder, a text encoder, FiLM-based fusion, and a DecisionScaler gate that regulates the contribution of each modality.
+
+\subsection{Vision Encoder}
+
+We use a pretrained Vision Transformer (ViT-B/16) to extract image features from radiology images. Given an input image $I$, the encoder produces a 768-dimensional embedding
+\begin{equation}
+e_{\mathrm{img}} = \text{VisionEncoder}(I) \in \mathbb{R}^{768}.
+\end{equation}
+To reduce overfitting on the relatively small VQA-RAD dataset, we keep the ViT backbone frozen during training.
+
+\subsection{Text Encoder}
+
+Clinical questions $Q$ are encoded using ClinicalBERT. The question is tokenized and passed through the transformer encoder, and we apply mean pooling over the final-layer token embeddings to obtain a fixed-length representation
+\begin{equation}
+e_{\mathrm{txt}} = \text{TextEncoder}(Q) \in \mathbb{R}^{768}.
+\end{equation}
+
+\subsection{FiLM Fusion}
+
+We apply Feature-wise Linear Modulation (FiLM) to condition visual features on the textual embedding. A small multilayer perceptron (MLP) maps the text embedding to FiLM parameters:
+\begin{equation}
+\gamma, \beta = \text{MLP}(e_{\mathrm{txt}}),
+\end{equation}
+and we modulate the image features as
+\begin{equation}
+z_{\mathrm{img}} = (1 + \gamma) \odot e_{\mathrm{img}} + \beta,
+\end{equation}
+where $\odot$ denotes element-wise multiplication. This allows the question semantics to highlight or suppress different visual dimensions.
+
+\subsection{DecisionScaler Gating}
+
+To explicitly control modality usage, we introduce a DecisionScaler gating module. We first concatenate the FiLM-modulated visual features and the text features:
+\begin{equation}
+x = [z_{\mathrm{img}}; e_{\mathrm{txt}}],
+\end{equation}
+and map $x$ through an MLP followed by a temperature-scaled softmax to obtain modality weights:
+\begin{equation}
+\alpha = \text{Softmax}(\text{MLP}(x) / \tau),
+\end{equation}
+where $\alpha = [\alpha_{\mathrm{img}}, \alpha_{\mathrm{txt}}]$ and $\tau > 0$ is a temperature hyperparameter (we set $\tau = 2.0$). The final fused representation is
+\begin{equation}
+h = \alpha_{\mathrm{img}} \cdot z_{\mathrm{img}} + \alpha_{\mathrm{txt}} \cdot e_{\mathrm{txt}}.
+\end{equation}
+Ideally, $\alpha_{\mathrm{img}}$ and $\alpha_{\mathrm{txt}}$ should both be non-degenerate, indicating that both modalities contribute.
+
+\subsection{Training Objective}
+
+We use a standard cross-entropy loss for answer classification. Let $y$ be the ground-truth answer index and $\hat{y}$ the predicted class distribution. The cross-entropy loss is
+\begin{equation}
+\mathcal{L}_{\mathrm{CE}} = - \sum_{c} \mathbf{1}[c = y] \log \hat{y}_c.
+\end{equation}
+To encourage balanced modality usage, we add an entropy regularization term on the gate distribution $\alpha$:
+\begin{equation}
+H(\alpha) = - \sum_{m \in \{\mathrm{img}, \mathrm{txt}\}} \alpha_m \log \alpha_m.
+\end{equation}
+The total loss is
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\mathrm{CE}} - \lambda \, H(\alpha),
+\end{equation}
+where $\lambda$ controls the strength of the entropy regularization. Higher entropy encourages the gate to avoid collapsing onto a single modality.
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+
+To provide clinical context and improve interpretability, MedVQA+ incorporates a retrieval-augmented generation system that retrieves relevant medical knowledge from a curated corpus. The RAG system consists of three components: (1) a medical knowledge corpus, (2) a semantic search index, and (3) adaptive query construction.
+
+\subsubsection{Medical Knowledge Corpus}
+
+We construct a medical knowledge corpus from domain-specific text files covering various radiology topics: chest imaging, neuro-radiology, abdominal CT, bone and spine imaging, MRI sequences, and general radiology terminology. Each corpus file contains structured clinical knowledge about imaging findings, diagnostic criteria, anatomical structures, and pathological features. The corpus is organized by modality and anatomical region to enable targeted retrieval.
+
+\subsubsection{Semantic Search Index}
+
+We build a FAISS-based semantic search index over the medical corpus. Each corpus document is split into paragraph-sized chunks, and each chunk is encoded using ClinicalBERT to produce a 768-dimensional embedding. The embeddings are indexed using FAISS (IndexFlatL2) for efficient similarity search. The same ClinicalBERT model used for question encoding ensures semantic consistency between queries and corpus chunks.
+
+\subsubsection{Adaptive Query Construction}
+
+The RAG query is constructed adaptively based on the DecisionScaler gate behavior and question type. For image-dominant predictions ($\alpha_{\mathrm{img}} > \alpha_{\mathrm{txt}}$), the query emphasizes radiologic appearance and visual imaging characteristics. For text-dominant predictions ($\alpha_{\mathrm{txt}} > \alpha_{\mathrm{img}}$), the query focuses on clinical interpretation and diagnostic criteria. When the gate is balanced ($|\alpha_{\mathrm{img}} - \alpha_{\mathrm{txt}}| < 0.15$), the system retrieves complementary evidence from both perspectives, providing multi-modal clinical context.
+
+The query incorporates the predicted answer, the original question, the imaging modality, and the gate-determined focus area. This adaptive approach ensures that retrieved evidence aligns with the model's reasoning process, enhancing both accuracy and interpretability. The top-$k$ most relevant corpus chunks (typically $k=3$) are retrieved and presented alongside the model's prediction, providing clinicians with supporting clinical knowledge.
+
+\section{Experiments and Results}
+
+\subsection{Dataset and Settings}
+
+We evaluate MedVQA+ on the VQA-RAD dataset, which contains radiology images paired with clinical questions and answers. Following standard practice, we consider two evaluation settings:
+\begin{itemize}
+    \item \textbf{Closed}: classification over a small fixed set of answers.
+    \item \textbf{Top-50}: classification over the 50 most frequent answers.
+\end{itemize}
+
+We fine-tune only the fusion layers and the classifier, while keeping ViT-B/16 and ClinicalBERT frozen. We train using Adam with a learning rate of $1 \times 10^{-4}$ and a batch size suited to GPU memory.
+
+\subsection{Baseline Comparison}
+
+Table~\ref{tab:top50} reports accuracy and gating statistics for a baseline model and MedVQA+ in the Top-50 setting. The baseline uses the same encoders and classifier but without FiLM and DecisionScaler (effectively a text-dominated fusion). As shown in Figure~\ref{fig:accuracy}, MedVQA+ improves Top-50 accuracy by 10.5 percentage points (from 44.1\% to 54.6\%). More importantly, as illustrated in Figure~\ref{fig:entropy}, the gate entropy increases from 0.055 to 0.670, and the gate weights shift from a degenerate text-only solution ($\alpha_{\mathrm{img}} \approx 0$) to a more balanced configuration ($\alpha_{\mathrm{img}} = 0.392$, $\alpha_{\mathrm{txt}} = 0.608$). This demonstrates that the entropy-regularized gating effectively prevents text-only collapse.
+
+\begin{table}[!t]
+\centering
+\caption{Top-50 results and gating metrics on VQA-RAD. MedVQA+ improves accuracy and gate entropy, indicating reduced text-only collapse.}
+\label{tab:top50}
+\begin{tabular}{lcccc}
+\toprule
+Model & Acc. (\%) & $\alpha_{\mathrm{img}}$ & $\alpha_{\mathrm{txt}}$ & Entropy \\
+\midrule
+Baseline Top-50 & 44.1 & 0.000 & 1.000 & 0.055 \\
+MedVQA+ Top-50 & \textbf{54.6} & 0.392 & 0.608 & 0.670 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Accuracy Comparison}
+
+Figure~\ref{fig:accuracy} summarizes the accuracy of baseline and MedVQA+ models under Closed and Top-50 settings on VQA-RAD.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{output.png}
+    \caption{Accuracy comparison for baseline and MedVQA+ in Closed and Top-50 settings on VQA-RAD. MedVQA+ achieves 54.6\% accuracy in the Top-50 setting, representing a 10.5 percentage point improvement over the baseline.}
+    \label{fig:accuracy}
+\end{figure}
+
+\subsection{Gating Entropy Analysis}
+
+Figure~\ref{fig:entropy} shows gate entropy for the same models. The baseline gate is heavily skewed to text-only usage, whereas MedVQA+ exhibits substantially higher entropy, indicating balanced modality usage.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{output_entropy.png}
+    \caption{Gate entropy comparison between baseline and MedVQA+. Higher entropy indicates more balanced modality usage. The baseline exhibits near-zero entropy (0.055), indicating text-only collapse, while MedVQA+ achieves entropy of 0.670, approaching the maximum possible entropy of $\log 2 \approx 0.693$.}
+    \label{fig:entropy}
+\end{figure}
+
+\subsection{Gate Behavior Analysis}
+
+To gain deeper insight into how the DecisionScaler gate behaves across different samples, we analyze the distribution of alpha values, their correlation with prediction accuracy, and the entropy distribution. Figure~\ref{fig:gate_analysis} presents a comprehensive analysis of gate behavior on the test set for the Top-50 MedVQA+ model.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{gate_analysis_test.png}
+    \caption{Comprehensive gate behavior analysis for MedVQA+ Top-50 model on the test set. (Top-left) Distribution of alpha values for image and text modalities, showing balanced usage with slight text preference. (Top-right) Scatter plot of alpha values colored by prediction correctness (green=correct, red=incorrect), demonstrating that correct predictions tend to have balanced modality usage. (Bottom-left) Distribution of gate entropy values, showing concentration near maximum entropy. (Bottom-right) Accuracy as a function of alpha image value, indicating performance across different modality weightings.}
+    \label{fig:gate_analysis}
+\end{figure}
+
+The gate analysis reveals several key insights: (1) The alpha distribution shows a balanced but slightly text-biased pattern, with image alpha values centered around 0.4 and text alpha values around 0.6, indicating that both modalities contribute meaningfully. (2) The scatter plot demonstrates that correct predictions (green points) cluster around balanced alpha configurations, while incorrect predictions (red points) are more dispersed, suggesting that balanced modality usage correlates with better performance. (3) The entropy distribution is concentrated near the maximum possible value ($\log 2 \approx 0.693$), confirming that the gate maintains non-degenerate weights across most samples. (4) The accuracy-by-alpha plot shows that performance remains relatively stable across different alpha image values, indicating robust multimodal reasoning.
+
+\subsection{Closed Setting}
+
+In the Closed setting, the baseline model achieves 60.3\% accuracy with highly text-dominated gating. MedVQA+ attains 58.7\% accuracy with nearly perfectly balanced gating ($\alpha_{\mathrm{img}} \approx \alpha_{\mathrm{txt}}$ and entropy close to $\log 2$). While the baseline has slightly higher accuracy, its near-zero image contribution makes it less trustworthy for clinical deployment.
+
+\subsection{Qualitative Behavior}
+
+As evidenced by the gate analysis in Figure~\ref{fig:gate_analysis}, MedVQA+ demonstrates adaptive behavior across different question types. The model tends to rely more on image features for questions about anatomical location or modality, as reflected in the alpha distribution showing meaningful contributions from both modalities. For simple yes/no questions that correlate strongly with text priors, the gate shifts weight slightly toward text (as seen in the slight text bias in the alpha distribution) but does not fully collapse, maintaining balanced modality usage. The scatter plot in Figure~\ref{fig:gate_analysis} further confirms that correct predictions cluster around balanced alpha configurations, suggesting that the gate adapts dynamically to question type while preserving multimodal reasoning.
+
+The RAG system complements this adaptive behavior by retrieving clinical context that aligns with the gate's modality preference. When the gate is image-dominant, RAG retrieves information about radiologic appearance and visual characteristics, while text-dominant predictions trigger retrieval of clinical interpretation and diagnostic criteria. This gate-aware retrieval enhances interpretability by providing evidence that matches the model's reasoning process, enabling clinicians to understand not just what the model predicted, but also which modality (visual or textual) drove the decision and what clinical knowledge supports it.
+
+
+\section{Discussion}
+
+The results indicate that purely optimizing accuracy can lead MedVQA systems to overfit text priors and ignore images, especially in datasets with biased answer distributions. By explicitly modeling and regularizing modality usage, MedVQA+ encourages balanced fusion and yields more interpretable behavior. In safety-critical domains such as radiology, this is essential: clinicians must be able to trust that decisions are grounded in image evidence, not just language shortcuts.
+
+Our findings also highlight that standard aggregate accuracy is insufficient to evaluate MedVQA systems. As demonstrated in Figure~\ref{fig:gate_analysis}, gating statistics and entropy provide additional insight into how a model uses each modality. The comprehensive gate analysis reveals that balanced modality usage correlates with better performance, and that the gate maintains interpretable, non-degenerate weights across most samples. These metrics should be considered alongside accuracy in future work to ensure models are not exploiting dataset shortcuts while achieving high accuracy scores.
+
+The integration of RAG further enhances clinical trust by providing retrievable evidence that supports predictions. The gate-aware query construction ensures that retrieved clinical knowledge aligns with the model's reasoning process, creating a more transparent decision-making pipeline. This combination of balanced gating and evidence retrieval addresses a key limitation of black-box MedVQA systems: the inability to explain why a particular answer was chosen and what clinical knowledge supports it. Future work could explore using RAG-retrieved evidence not just for explanation, but also to refine predictions through iterative retrieval and reasoning.
+
+\section{Conclusion}
+
+We presented MedVQA+, a modality-balanced MedVQA architecture that combines ViT-B/16, ClinicalBERT, FiLM fusion, a DecisionScaler gating mechanism with entropy regularization, and a retrieval-augmented generation system for clinical context. On VQA-RAD, MedVQA+ improves Top-50 accuracy over a baseline model and exhibits substantially higher gating entropy, reducing text-only collapse. The gate-aware RAG system provides interpretable clinical evidence that aligns with the model's reasoning process, enhancing trust and transparency. These results support the use of explicit gating, modality-aware regularization, and evidence retrieval for safe, interpretable clinical decision support. Future work will explore more fine-grained question categories, larger and more diverse datasets, extension to other imaging modalities, and using RAG evidence to refine predictions through iterative reasoning.
+
+\begin{thebibliography}{99}
+
+\bibitem{dosovitskiy2020vit}
+A.~Dosovitskiy et al., ``An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale,'' in \emph{Proc. ICLR}, 2021.
+
+\bibitem{alsentzer2019clinicalbert}
+E.~Alsentzer et al., ``Publicly Available Clinical BERT Embeddings,'' in \emph{Proc. ClinicalNLP}, 2019.
+
+\bibitem{perez2018film}
+E.~Perez et al., ``FiLM: Visual Reasoning with a General Conditioning Layer,'' in \emph{Proc. AAAI}, 2018.
+
+\bibitem{lau2018vqarad}
+J.~J.~Lau et al., ``A Dataset of Clinically Generated Visual Questions and Answers about Radiology Images,'' in \emph{Proc. MICCAI}, 2018.
+
+\end{thebibliography}
+
+\end{document}

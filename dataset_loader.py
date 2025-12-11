@@ -28,6 +28,7 @@ class VQARadDataset(Dataset):
         max_len=48,
         answer2id=None,
         items=None,
+        train: bool = False,
     ):
         self.img_dir = os.path.join(data_root, "VQA_RAD", "images")
         self.qa_path = os.path.join(data_root, "VQA_RAD", "qa_pairs.json")
@@ -42,17 +43,31 @@ class VQARadDataset(Dataset):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
         self.max_len = max_len
-        self.transform = T.Compose([
-            T.Resize(224, interpolation=T.InterpolationMode.BICUBIC),
-            T.CenterCrop(224),
-            T.ToTensor(),
-            T.Normalize(CLIP_MEAN, CLIP_STD),
-        ])
+
+        # Augmentation only for train split, deterministic center crop for val/test
+        if train:
+            self.transform = T.Compose([
+                T.Resize(256, interpolation=T.InterpolationMode.BICUBIC),
+                T.RandomResizedCrop(224, scale=(0.85, 1.0)),  # More aggressive crop
+                T.RandomHorizontalFlip(p=0.5),
+                T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),  # Color augmentation (no hue for medical images)
+                T.RandomRotation(degrees=5),  # Small rotation for medical images
+                T.ToTensor(),
+                T.Normalize(CLIP_MEAN, CLIP_STD),
+            ])
+        else:
+            self.transform = T.Compose([
+                T.Resize(224, interpolation=T.InterpolationMode.BICUBIC),
+                T.CenterCrop(224),
+                T.ToTensor(),
+                T.Normalize(CLIP_MEAN, CLIP_STD),
+            ])
 
         assert answer2id is not None, "VQARadDataset requires an answer2id mapping"
         self.answer2id = answer2id
 
-    def __len__(self): return len(self.items)
+    def __len__(self): 
+        return len(self.items)
 
     def __getitem__(self, i):
         it = self.items[i]
@@ -60,7 +75,8 @@ class VQARadDataset(Dataset):
         img = self.transform(img)
 
         tok = self.tokenizer(
-            it["question"], padding="max_length", truncation=True, max_length=self.max_len, return_tensors="pt"
+            it["question"], padding="max_length", truncation=True,
+            max_length=self.max_len, return_tensors="pt"
         )
         input_ids = tok["input_ids"].squeeze(0)
         attn_mask = tok["attention_mask"].squeeze(0)
@@ -118,14 +134,22 @@ def build_dataloaders(
         answer2id = {a: i for i, a in enumerate(vocab)}
 
     # Construct per-split datasets that share the same vocab
-    train_ds = VQARadDataset(data_root, "train", model_name=model_name, answer2id=answer2id, items=items)
-    val_ds   = VQARadDataset(data_root, "val",   model_name=model_name, answer2id=answer2id, items=items)
-    test_ds  = VQARadDataset(data_root, "test",  model_name=model_name, answer2id=answer2id, items=items)
+    train_ds = VQARadDataset(
+        data_root, "train", model_name=model_name,
+        answer2id=answer2id, items=items, train=True
+    )
+    val_ds   = VQARadDataset(
+        data_root, "val", model_name=model_name,
+        answer2id=answer2id, items=items, train=False
+    )
+    test_ds  = VQARadDataset(
+        data_root, "test", model_name=model_name,
+        answer2id=answer2id, items=items, train=False
+    )
 
     kw = dict(batch_size=batch, num_workers=num_workers, pin_memory=True)
     train_loader = DataLoader(train_ds, shuffle=True, **kw)
     val_loader   = DataLoader(val_ds, shuffle=False, **kw)
     test_loader  = DataLoader(test_ds, shuffle=False, **kw)
-
 
     return train_loader, val_loader, test_loader, answer2id

@@ -1,0 +1,21 @@
+An acute infarct on diffusion-weighted MRI shows restricted diffusion with high signal on DWI and low signal on the corresponding ADC map. On early CT, there may be subtle loss of gray–white differentiation and sulcal effacement. Acute strokes typically involve specific vascular territories, with middle cerebral artery territory being most common.
+
+A ring-enhancing lesion on contrast-enhanced MRI can represent abscess, metastasis, or high-grade glioma. Abscesses typically show thin, smooth ring enhancement with marked diffusion restriction centrally, whereas tumors may have thicker, more irregular walls and heterogeneous internal signal. The pattern of enhancement and surrounding edema help differentiate these entities.
+
+Multiple sclerosis plaques are classically seen as T2 and FLAIR hyperintense lesions in the periventricular, juxtacortical, infratentorial, and spinal cord regions. Dawson's fingers describe ovoid lesions oriented perpendicular to the lateral ventricles. Active plaques may show contrast enhancement, while chronic plaques do not enhance.
+
+Intracranial hemorrhage appears differently depending on age. Acute hemorrhage (less than 24 hours) is hyperdense on CT and may show low signal on T2-weighted MRI. Subacute hemorrhage (days to weeks) shows high signal on T1-weighted images due to methemoglobin. Chronic hemorrhage shows low signal on both T1 and T2 due to hemosiderin deposition.
+
+Hydrocephalus refers to enlargement of the ventricular system due to increased CSF volume. On imaging, the ventricles appear enlarged, and there may be transependymal flow of CSF seen as periventricular T2 hyperintensity. Obstructive hydrocephalus shows disproportionate enlargement of ventricles proximal to the obstruction.
+
+Brain tumors vary in appearance based on type. Gliomas typically show T2 hyperintensity and variable contrast enhancement. Meningiomas are extra-axial masses that enhance homogeneously and may show a dural tail. Metastases are often multiple, located at gray-white matter junctions, and show ring or solid enhancement.
+
+Subarachnoid hemorrhage appears as high density in the subarachnoid spaces on CT, particularly in the basal cisterns and sulci. On MRI, it may be subtle on T1 and T2 but is better seen on FLAIR as hyperintense signal in the subarachnoid spaces. The most common cause is trauma or ruptured aneurysm.
+
+Cerebral edema can be vasogenic (due to blood-brain barrier breakdown) or cytotoxic (due to cell death). Vasogenic edema appears as T2 hyperintensity in white matter, while cytotoxic edema shows restricted diffusion on DWI. Mass effect from edema can cause midline shift and herniation.
+
+The lateral ventricles are paired structures in the brain that contain cerebrospinal fluid. They consist of frontal horns, bodies, atria, and occipital and temporal horns. Enlargement can indicate hydrocephalus, while asymmetry may suggest mass effect or volume loss.
+
+The cerebellum is located in the posterior fossa and is responsible for coordination and balance. On imaging, it appears as a T2-hyperintense structure with folia (folds). Cerebellar lesions can cause ataxia and may be seen in stroke, tumors, or demyelinating diseases.
+
+Brain regions include the frontal lobe (executive function), temporal lobe (memory and language), parietal lobe (sensory processing), and occipital lobe (vision). Each region has characteristic functions, and lesions in specific regions cause corresponding neurological deficits.

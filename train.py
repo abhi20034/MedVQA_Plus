@@ -5,11 +5,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 
 from dataset_loader import build_dataloaders
 from models.vision_encoder import VisionEncoder
 from models.text_encoder import TextEncoder
 from models.fusion_model import FiLMFusion
+from models.cross_attention_fusion import CrossAttentionFusion
 from models.decision_scale import DecisionScaler
 
 # ---------------- Device selection ----------------
@@ -107,6 +109,15 @@ def main():
     # dataset shaping
     ap.add_argument("--closed_only", action="store_true", help="use only CLOSED yes/no questions")
     ap.add_argument("--top_k", type=int, default=0, help="keep only top-K most frequent answers (0=all)")
+    # Loss improvements
+    ap.add_argument("--focal_loss", action="store_true", help="Use Focal Loss instead of CE")
+    ap.add_argument("--focal_gamma", type=float, default=2.0, help="Focal loss gamma (focusing parameter)")
+    ap.add_argument("--label_smooth", type=float, default=0.0, help="Label smoothing coefficient (0=no smoothing)")
+    # LR scheduling
+    ap.add_argument("--lr_scheduler", type=str, default="cosine", choices=["none", "cosine", "step"], help="LR scheduler type")
+    ap.add_argument("--warmup_epochs", type=int, default=1, help="Warmup epochs before cosine decay")
+    # Fusion architecture
+    ap.add_argument("--fusion_type", type=str, default="film", choices=["film", "cross_attn"], help="Fusion type: film or cross_attn")
     args = ap.parse_args()
 
     print(">>> args:", args, flush=True)
@@ -141,13 +152,21 @@ def main():
     print(">>> initializing models ...", flush=True)
     vision = VisionEncoder(proj_dim=768, freeze=args.freeze).to(device)
     textenc= TextEncoder(model_name=args.txt_model, proj_dim=768, freeze=args.freeze).to(device)
-    fusion = FiLMFusion(dim=768, hidden=512).to(device)
+    
+    # Choose fusion type
+    if args.fusion_type == "cross_attn":
+        fusion = CrossAttentionFusion(dim=768, num_heads=8, dropout=0.1).to(device)
+        print(">>> using CrossAttentionFusion")
+    else:
+        fusion = FiLMFusion(dim=768, hidden=512).to(device)
+        print(">>> using FiLMFusion")
+    
     head   = DecisionScaler(dim=768, num_classes=num_classes).to(device)
     # set gate temperature from CLI
     if hasattr(head, "tau"):
         head.tau = float(args.alpha_tau)
 
-    # ---- Optimizer (head a bit slower) ----
+    # ---- Optimizer (encoders slower LR) ----
     head_params   = [p for p in head.parameters() if p.requires_grad]
     fusion_params = [p for p in fusion.parameters() if p.requires_grad]
     enc_params    = []
@@ -156,18 +175,62 @@ def main():
         enc_params += [p for p in textenc.parameters() if p.requires_grad]
 
     opt = AdamW([
-        {"params": enc_params,    "lr": args.lr},
+        {"params": enc_params,    "lr": args.lr * 0.2},  # encoders: smaller LR
         {"params": fusion_params, "lr": args.lr},
-        {"params": head_params,   "lr": args.lr * 0.5},
+        {"params": head_params,   "lr": args.lr},
     ])
+    
+    # ---- Learning Rate Scheduler ----
+    if args.lr_scheduler == "cosine":
+        scheduler = CosineAnnealingLR(opt, T_max=args.epochs, eta_min=args.lr * 0.01)
+        print(f">>> using CosineAnnealingLR scheduler (T_max={args.epochs})")
+    elif args.lr_scheduler == "step":
+        scheduler = StepLR(opt, step_size=max(1, args.epochs // 3), gamma=0.5)
+        print(f">>> using StepLR scheduler (step_size={max(1, args.epochs // 3)}, gamma=0.5)")
+    else:
+        scheduler = None
+        print(">>> no LR scheduler")
 
     # ---- Loss (class-weighted) ----
     class_weights = build_class_weights(train_loader, answer2id)
-    crit = nn.CrossEntropyLoss(weight=class_weights)
+    
+    if args.focal_loss:
+        # Focal Loss implementation for class imbalance
+        class FocalLoss(nn.Module):
+            def __init__(self, weight=None, gamma=2.0, label_smoothing=0.0):
+                super().__init__()
+                self.weight = weight
+                self.gamma = gamma
+                self.label_smoothing = label_smoothing
+                
+            def forward(self, inputs, targets):
+                ce_loss = nn.functional.cross_entropy(
+                    inputs, targets, weight=self.weight, 
+                    label_smoothing=self.label_smoothing, reduction='none'
+                )
+                pt = torch.exp(-ce_loss)
+                focal_loss = ((1 - pt) ** self.gamma) * ce_loss
+                return focal_loss.mean()
+        
+        crit = FocalLoss(weight=class_weights, gamma=args.focal_gamma, label_smoothing=args.label_smooth)
+        print(f">>> using Focal Loss (gamma={args.focal_gamma}, label_smoothing={args.label_smooth})")
+    else:
+        crit = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smooth)
+        if args.label_smooth > 0:
+            print(f">>> using CrossEntropyLoss with label smoothing={args.label_smooth}")
 
     # ---- Best checkpoint tracking ----
+    # Derive best checkpoint path from --save argument
+    # e.g., "checkpoints/test.pt" → "checkpoints/best_test.pt"
+    save_dir = os.path.dirname(args.save) or "checkpoints"
+    save_basename = os.path.basename(args.save)
+    # Remove .pt extension if present
+    if save_basename.endswith('.pt'):
+        save_basename = save_basename[:-3]
+    best_path = os.path.join(save_dir, f"best_{save_basename}.pt")
     best_val = -1.0
-    best_path = "checkpoints/best.pt"
+    final_val_acc = 0.0  # Initialize for final checkpoint
+    print(f">>> checkpoint paths: best → {best_path}, final → {args.save}", flush=True)
 
     # ---- Training ----
     for epoch in range(1, args.epochs + 1):
@@ -195,9 +258,14 @@ def main():
             loss = crit(logits[valid], y[valid])
 
             # ---- α entropy regularizer (discourage 0/1 gate) ----
+            # Target uniform distribution: H_max = log(2) ≈ 0.693
+            # We want to maximize entropy (penalize low entropy)
             alpha_safe = alpha.clamp_min(1e-6)
-            entropy = -(alpha_safe * alpha_safe.log()).sum(1)     # H(α)
-            alpha_reg = args.alpha_entropy * (-entropy.mean())     # minimize KL(α||uniform)
+            entropy = -(alpha_safe * alpha_safe.log()).sum(1)     # H(α) per sample
+            max_entropy = torch.log(torch.tensor(2.0, device=device))  # log(2) for uniform
+            # Penalty: encourage entropy to be close to max_entropy
+            entropy_loss = (max_entropy - entropy.mean()).clamp(min=0.0)
+            alpha_reg = args.alpha_entropy * entropy_loss
             loss = loss + alpha_reg
             # ------------------------------------------------------
 
@@ -229,6 +297,12 @@ def main():
         # ---- Validation ----
         val_acc = evaluate((vision, textenc, fusion, head), val_loader, id2answer=id2answer)
         print(f">>> epoch {epoch}/{args.epochs} | train_loss={running_loss/max(steps,1):.4f} | val_acc={val_acc:.3f}", flush=True)
+        
+        # Update learning rate scheduler
+        if scheduler is not None:
+            scheduler.step()
+            current_lr = opt.param_groups[0]['lr']
+            print(f">>> LR updated to {current_lr:.6f}", flush=True)
 
         # save best on val
         if val_acc > best_val:
@@ -239,9 +313,15 @@ def main():
                 "fusion": fusion.state_dict(),
                 "head":   head.state_dict(),
                 "answer2id": answer2id,
-                "id2answer": id2answer
+                "id2answer": id2answer,
+                "epoch": epoch,
+                "val_acc": float(val_acc),
+                "checkpoint_type": "best"
             }, best_path)
-            print(f">>> new best val_acc={best_val:.3f} → saved {best_path}", flush=True)
+            print(f">>> new best val_acc={best_val:.3f} (epoch {epoch}) → saved {best_path}", flush=True)
+        
+        # Store last epoch's val_acc for final checkpoint
+        final_val_acc = val_acc
 
     # ---- Save final checkpoint (last epoch) ----
     torch.save({
@@ -250,9 +330,13 @@ def main():
         "fusion": fusion.state_dict(),
         "head":   head.state_dict(),
         "answer2id": answer2id,
-        "id2answer": id2answer
+        "id2answer": id2answer,
+        "epoch": args.epochs,
+        "val_acc": float(final_val_acc),
+        "best_val_acc": float(best_val),
+        "checkpoint_type": "final"
     }, args.save)
-    print(f">>> saved → {args.save}", flush=True)
+    print(f">>> saved final checkpoint (epoch {args.epochs}, val_acc={final_val_acc:.3f}, best={best_val:.3f}) → {args.save}", flush=True)
 
     # ---- Test on last-epoch weights (for reference) ----
     test_acc = evaluate((vision, textenc, fusion, head), test_loader, id2answer=id2answer)

@@ -1,0 +1,13 @@
+# Web application requirements
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Existing requirements (from your project)
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.30.0
+pillow>=9.0.0
+numpy>=1.24.0
+faiss-cpu>=1.7.4
+scikit-learn>=1.3.0
+

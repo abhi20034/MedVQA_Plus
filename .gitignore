@@ -1,7 +1,50 @@
+# Python virtual environments
 env/
 venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Model checkpoints (large files)
 checkpoints/*.pt
+checkpoints/*.pth
+checkpoints/*.ckpt
+
+# Data directory (contains large image files)
+data/
+
+# RAG cache
+retrieval/.rag_cache/
+
+# Logs
+*.log
+*.log.*
+
+# Uploads
+uploads/
+
+# Environment variables
+.env
+.env.local
+
+# Documentation files (keep only README.md)
+*.md
+!README.md
+
+# Report figures (optional - uncomment if you don't want to commit figures)
+# *.png
+# *.jpg
+# *.jpeg

@@ -1,0 +1,19 @@
+Acute appendicitis on CT is characterized by a dilated, fluid-filled appendix with diameter greater than 6 mm, wall thickening, periappendiceal fat stranding, and sometimes an appendicolith. Complicated cases may show periappendiceal fluid collections or abscess. The appendix is typically located in the right lower quadrant, and inflammation may extend to adjacent structures.
+
+Gallstones on CT appear as hyperdense foci within the gallbladder lumen, although many stones are better detected on ultrasound. Complicated cholecystitis may show gallbladder wall thickening, pericholecystic fluid, and a positive sonographic Murphy sign clinically. Air in the gallbladder wall suggests emphysematous cholecystitis, a serious complication.
+
+Pancreatitis on CT demonstrates an enlarged, edematous pancreas with peripancreatic fat stranding and possible fluid collections. Severe cases may show areas of non-enhancement representing necrosis and can be associated with pleural effusions or ascites. Chronic pancreatitis may show pancreatic calcifications, ductal dilatation, and atrophy.
+
+Liver lesions on CT vary in appearance. Simple cysts are well-defined, low-density lesions with no enhancement. Hemangiomas show peripheral nodular enhancement with progressive centripetal fill-in. Metastases are often multiple, hypodense lesions that may show rim enhancement. Hepatocellular carcinoma typically shows arterial enhancement with washout on delayed phases.
+
+The liver is divided into right and left lobes, with the right lobe being larger. The caudate lobe is a small structure posteriorly. Liver size is assessed by measuring the craniocaudal dimension, with normal being less than 15-17 cm. Enlarged liver may indicate fatty liver, congestion, or mass effect.
+
+Kidney findings on CT include hydronephrosis (dilated collecting system), stones (hyperdense foci), and masses. Renal cell carcinoma typically shows heterogeneous enhancement and may extend into the renal vein. Simple renal cysts are common benign findings that appear as well-defined, low-density lesions.
+
+Bowel findings on CT include obstruction (dilated loops with transition point), inflammation (wall thickening and fat stranding), and perforation (free air). Bowel wall thickening greater than 3-4 mm is considered abnormal and may indicate inflammation, ischemia, or neoplasm.
+
+Ascites appears as free fluid in the peritoneal cavity, typically collecting in dependent areas such as the pelvis and paracolic gutters. On CT, ascites appears as low-density fluid surrounding bowel loops. Large amounts of ascites may cause mass effect on adjacent structures.
+
+The pancreas is located in the retroperitoneum and consists of head, body, and tail. Normal pancreas shows homogeneous enhancement. Pancreatic duct dilatation may indicate obstruction or chronic pancreatitis. Pancreatic cancer typically appears as a hypodense mass in the pancreatic head.
+
+Abdominal lymph nodes are considered enlarged when greater than 1 cm in short axis. Enlarged nodes may indicate infection, inflammation, or malignancy. Retroperitoneal lymphadenopathy is common in lymphoma and metastatic disease. Normal lymph nodes are typically not visible on CT.

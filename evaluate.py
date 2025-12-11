@@ -9,6 +9,7 @@ from dataset_loader import build_dataloaders
 from models.vision_encoder import VisionEncoder
 from models.text_encoder import TextEncoder
 from models.fusion_model import FiLMFusion
+from models.cross_attention_fusion import CrossAttentionFusion
 from models.decision_scale import DecisionScaler
 
 # ---------- Device ----------
@@ -76,6 +77,7 @@ def main():
     ap.add_argument("--alpha_tau", type=float, default=2.0)
     ap.add_argument("--closed_only", action="store_true")
     ap.add_argument("--top_k", type=int, default=0)
+    ap.add_argument("--fusion_type", type=str, default="film", choices=["film", "cross_attn"])
     args = ap.parse_args()
 
     # data & label maps (must match train flags)
@@ -89,7 +91,13 @@ def main():
     # models
     vision = VisionEncoder(proj_dim=768, freeze=True).to(device)
     text   = TextEncoder(model_name=args.txt_model, proj_dim=768, freeze=True).to(device)
-    fusion = FiLMFusion(dim=768, hidden=512).to(device)
+    
+    # Choose fusion type
+    if args.fusion_type == "cross_attn":
+        fusion = CrossAttentionFusion(dim=768, num_heads=8, dropout=0.1).to(device)
+    else:
+        fusion = FiLMFusion(dim=768, hidden=512).to(device)
+    
     head   = DecisionScaler(dim=768, num_classes=len(answer2id), hidden=256, tau=args.alpha_tau).to(device)
 
     # load weights

@@ -1,0 +1,32 @@
+Axial plane (transverse plane) divides the body into superior and inferior portions. It is the most common imaging plane for CT and MRI, providing cross-sectional views that are perpendicular to the long axis of the body. Axial images are typically displayed as if viewing from the feet upward.
+
+Sagittal plane divides the body into left and right portions. Sagittal images are particularly useful for evaluating the spine, midline structures, and structures that extend in the anterior-posterior direction. Midline sagittal images show the spinal canal and brain midline structures.
+
+Coronal plane divides the body into anterior and posterior portions. Coronal images are useful for evaluating structures that extend side-to-side, such as the lungs, kidneys, and brain hemispheres. They provide a frontal view of anatomical structures.
+
+Hyperdense on CT refers to structures that appear brighter (whiter) than normal soft tissue. Examples include bone, calcifications, contrast material, acute hemorrhage, and metal. Hyperdense structures have high Hounsfield units (HU) on CT, typically greater than 50-60 HU.
+
+Hypodense on CT refers to structures that appear darker (blacker) than normal soft tissue. Examples include air, fat, fluid collections, and chronic hemorrhage. Hypodense structures have low Hounsfield units, with air being approximately -1000 HU and fat around -50 to -100 HU.
+
+Hyperintense on MRI refers to structures that appear bright on T2-weighted or FLAIR images. Examples include fluid, edema, most tumors, and inflammatory tissue. On T1-weighted images, fat and contrast-enhanced structures appear hyperintense.
+
+Hypointense on MRI refers to structures that appear dark. On T2-weighted images, examples include bone, air, calcifications, and hemosiderin. On T1-weighted images, fluid, edema, and most tumors appear hypointense.
+
+Size measurements in radiology are typically reported in centimeters (cm) for larger structures or millimeters (mm) for smaller findings. Lesions are often described by their largest dimension or in three dimensions (length x width x height). Precise measurements are important for tracking lesion growth over time.
+
+Well-defined margins on imaging refer to lesions with clear, sharp borders that are easily distinguished from surrounding tissue. Well-defined margins are often associated with benign lesions, although some malignant lesions can also have well-defined borders.
+
+Ill-defined margins on imaging refer to lesions with unclear, fuzzy borders that blend into surrounding tissue. Ill-defined margins are often associated with malignant lesions, inflammation, or infiltrative processes. They suggest aggressive or invasive behavior.
+
+Focal findings are localized to a specific area, while diffuse findings are spread throughout a larger region. Focal lesions are discrete and well-localized, whereas diffuse processes affect entire organs or regions. Examples include focal pneumonia versus diffuse interstitial lung disease.
+
+Enhancement on contrast-enhanced imaging refers to increased signal intensity or density after administration of contrast material. Enhancement indicates increased blood flow or breakdown of the blood-brain barrier. Patterns of enhancement (homogeneous, heterogeneous, ring-enhancing) provide diagnostic information.
+
+Calcification on imaging appears as high-density areas on CT and low-signal areas on MRI. Calcifications can be dystrophic (in damaged tissue), metastatic (in hypercalcemic states), or physiological (in normal structures like pineal gland). They are important markers for various diseases.
+
+Air-fluid levels on imaging appear as horizontal interfaces between air and fluid within a cavity. They are commonly seen in abscesses, empyemas, or bowel obstruction. On upright X-rays, air-fluid levels are best visualized, while on supine films they may not be apparent.
+
+Retrocardiac refers to structures located behind the heart on chest X-ray. The retrocardiac space includes the lower lobes of the lungs, descending aorta, and posterior mediastinum. Retrocardiac opacities may be obscured by the heart shadow on frontal views.
+
+Bilateral findings are present on both sides of the body, while unilateral findings are present on only one side. Bilateral findings are common in systemic diseases, while unilateral findings may suggest localized pathology. Examples include bilateral pleural effusions versus unilateral effusion.
+

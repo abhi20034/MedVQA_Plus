@@ -1,0 +1,20 @@
+Rib fractures on chest X-ray appear as linear lucencies or discontinuities in the rib cortex. Multiple rib fractures, especially in a pattern, may suggest trauma. Fractures may be associated with pneumothorax or hemothorax. Old healed fractures may show callus formation. Rib fractures are best visualized on dedicated rib series or chest X-ray with oblique views.
+
+Spinal compression fractures on imaging show loss of vertebral body height, often with anterior wedging. They are commonly seen in osteoporosis and may show bone marrow edema on MRI. Multiple compression fractures can lead to kyphosis. Acute fractures show increased signal on T2-weighted MRI, while chronic fractures may show fatty replacement.
+
+Vertebral fractures can be classified as compression, burst, or chance fractures. Compression fractures involve the anterior column, burst fractures involve all three columns, and chance fractures are horizontal fractures through the vertebra. CT is excellent for detecting fracture lines and bone fragments, while MRI is better for assessing spinal cord compression and soft tissue injury.
+
+Osteoporosis on imaging shows decreased bone density, with bones appearing more radiolucent on X-ray. Dual-energy X-ray absorptiometry (DEXA) is the gold standard for diagnosing osteoporosis. On CT, osteoporotic bone may show trabecular thinning and cortical thinning.
+
+Bone metastases typically appear as lytic (destructive) or blastic (sclerotic) lesions. Lytic metastases show areas of bone destruction, while blastic metastases appear as areas of increased density. Common primary sites include lung, breast, prostate, and kidney. Multiple lesions are more suggestive of metastatic disease than a single lesion.
+
+Avascular necrosis (osteonecrosis) most commonly affects the femoral head and appears as subchondral lucency on X-ray in early stages. On MRI, it shows a characteristic "double line sign" on T2-weighted images with a low-signal rim and high-signal inner border. Advanced cases may show collapse of the articular surface.
+
+Joint effusions on imaging appear as distension of the joint capsule with fluid. On MRI, joint fluid is bright on T2-weighted images. Effusions can be seen in inflammatory arthritis, trauma, or infection. Large effusions may cause joint space widening on X-ray.
+
+Spinal stenosis refers to narrowing of the spinal canal, which can compress the spinal cord or nerve roots. It is best evaluated on MRI, which shows thecal sac compression and may show signal changes in the cord. CT myelography can also demonstrate stenosis. Common causes include degenerative disc disease, spondylolisthesis, and ligamentum flavum hypertrophy.
+
+Disc herniation on MRI shows displacement of disc material beyond the normal disc margins. Central herniations compress the spinal cord, while lateral herniations compress nerve roots. T2-weighted images show the disc material well, and contrast enhancement may help distinguish recurrent herniation from scar tissue.
+
+Spondylolisthesis refers to anterior slippage of one vertebra relative to another. It is commonly seen at L4-L5 or L5-S1 levels. On lateral X-ray or sagittal MRI, the vertebral body appears displaced anteriorly. It can be graded based on the percentage of slippage.
+

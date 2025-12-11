@@ -1,0 +1,19 @@
+T1-weighted imaging shows fat as bright and fluid as dark. It is useful for evaluating anatomical detail and post-contrast enhancement patterns. T1-weighted images provide excellent soft tissue contrast and are the standard for post-contrast imaging.
+
+T2-weighted imaging shows fluid as bright and is helpful for detecting edema, inflammation, or cystic lesions. Most tumors appear hyperintense on T2. T2-weighted images are sensitive to water content and are excellent for detecting pathology.
+
+FLAIR suppresses CSF signal, making periventricular lesions more conspicuous. It is essential for evaluating multiple sclerosis plaques and subarachnoid hemorrhage in later phases. FLAIR is particularly useful for detecting lesions near CSF spaces that might be obscured on T2.
+
+Diffusion-weighted imaging (DWI) detects restricted diffusion due to cytotoxic edema. It is the most sensitive sequence for acute ischemic stroke. DWI shows restricted diffusion as bright signal, while the corresponding ADC map shows dark signal. This combination helps distinguish true restricted diffusion from T2 shine-through.
+
+Post-contrast T1-weighted imaging highlights areas of blood-brain barrier breakdown. Tumors, infections, and inflammatory lesions often show contrast enhancement. Enhancement patterns include homogeneous, heterogeneous, ring-enhancing, and nodular enhancement, each with different diagnostic implications.
+
+Gadolinium-based contrast agents are used for contrast-enhanced MRI. They shorten T1 relaxation time, making enhancing structures appear bright on T1-weighted images. Contrast is typically administered intravenously and images are acquired immediately after injection (arterial phase) and at delayed time points.
+
+Contrast enhancement patterns include homogeneous (uniform enhancement throughout), heterogeneous (irregular enhancement), ring-enhancing (peripheral enhancement with central non-enhancement), and nodular (focal areas of enhancement). Each pattern suggests different pathologies.
+
+Arterial phase imaging captures contrast in arteries and is useful for evaluating hypervascular lesions such as hepatocellular carcinoma or renal cell carcinoma. Venous phase imaging shows contrast in veins and is standard for most contrast-enhanced studies.
+
+Delayed phase imaging, typically performed 3-5 minutes after contrast injection, shows persistent enhancement in some lesions and washout in others. This is particularly useful in liver imaging for characterizing lesions.
+
+Susceptibility-weighted imaging (SWI) is sensitive to magnetic susceptibility effects from blood products, calcium, and iron. It is useful for detecting microhemorrhages, calcifications, and venous structures. SWI appears as dark signal in areas of susceptibility.

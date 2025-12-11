@@ -1,0 +1,23 @@
+Pleural effusion on chest X-ray is suggested by blunting of the costophrenic angle and a homogeneous opacity in the dependent portion of the hemithorax. Large effusions may cause a meniscus sign and mediastinal shift away from the affected side. On an erect PA view, fluid typically layers in the costophrenic recess, while in a supine film it can appear as diffuse haziness over the lower lung zones.
+
+Cardiomegaly is diagnosed on a PA chest radiograph when the cardiothoracic ratio exceeds 0.5. The cardiac silhouette appears enlarged and may be associated with pulmonary venous congestion, upper lobe vessel prominence, Kerley B lines, and bilateral pleural effusions in the setting of congestive heart failure.
+
+Pneumothorax on chest X-ray appears as a visible visceral pleural line with complete absence of pulmonary vascular markings peripheral to that line. In a tension pneumothorax, there may be mediastinal shift away from the affected side, depression of the ipsilateral hemidiaphragm, and possible hemodynamic compromise.
+
+Lobar pneumonia produces a region of homogeneous consolidation within a single lobe, often with air bronchograms. The affected lobe shows increased opacity, and the borders may respect fissures. Clinical correlation with fever, cough, and elevated inflammatory markers is typical.
+
+Diffuse interstitial lung disease can show a reticular, nodular, or reticulonodular pattern, often described as a "honeycomb" appearance in advanced stages. There may be volume loss, architectural distortion, and traction bronchiectasis, particularly in the lower lung zones.
+
+Pulmonary edema from acute left heart failure typically shows vascular redistribution to the upper lobes, perihilar "bat wing" opacities, Kerley B lines, and often small bilateral pleural effusions. Cardiomegaly is frequently present on frontal chest radiographs.
+
+Pulmonary nodules on chest imaging appear as well-defined, rounded or oval opacities measuring less than 3 cm in diameter. They can be solitary or multiple, and may be solid, part-solid, or ground-glass in appearance. On CT, pulmonary nodules are typically classified by size, margins (smooth, spiculated, or lobulated), and internal characteristics (calcification, cavitation, fat). Multiple bilateral pulmonary nodules may suggest metastatic disease, granulomatous disease, or infectious processes. Solitary pulmonary nodules require careful evaluation for malignancy risk factors including size, growth rate, patient age, smoking history, and imaging characteristics such as spiculation or upper lobe location. Follow-up imaging or further diagnostic workup may be indicated based on nodule characteristics and patient risk factors.
+
+Atelectasis refers to collapse or incomplete expansion of lung tissue. On chest X-ray, it appears as increased opacity with volume loss, which may cause mediastinal shift toward the affected side. Common causes include obstruction (mucus plug, foreign body, tumor), compression (pleural effusion, pneumothorax), or scarring. On CT, atelectasis shows collapsed lung with air bronchograms.
+
+Consolidation on chest imaging appears as homogeneous opacity that obscures underlying structures such as vessels and airways. It represents replacement of air in alveoli with fluid, cells, or other material. Common causes include pneumonia, pulmonary edema, and hemorrhage. Air bronchograms (air-filled bronchi visible within consolidation) are a characteristic feature.
+
+Bronchiectasis refers to abnormal permanent dilation of bronchi, often associated with chronic infection or inflammation. On CT, it appears as dilated airways with thickened walls, often described as "tram-track" or "signet ring" appearance. It is commonly seen in the lower lobes and may be associated with mucus plugging.
+
+The mediastinum is the central compartment of the chest between the lungs. It contains the heart, great vessels, esophagus, trachea, and lymph nodes. Mediastinal masses are classified by location (anterior, middle, or posterior mediastinum), which helps narrow the differential diagnosis. Common anterior mediastinal masses include thymoma and lymphoma.
+
+Hilar enlargement on chest X-ray may indicate lymphadenopathy, vascular enlargement, or masses. The hila are the points where bronchi, vessels, and lymph nodes converge. Asymmetric hilar enlargement is more concerning than symmetric enlargement and may suggest malignancy or infection.

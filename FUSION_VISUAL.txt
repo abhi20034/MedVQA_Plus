@@ -1,0 +1,28 @@
+FUSION MECHANISMS VISUAL COMPARISON
+====================================
+
+1. FiLMFusion (fusion_model.py)
+---------------------------------
+Vision [B,768] ──┐
+                 │
+Text [B,768] ────┼─→ MLP ─→ [gamma, beta] [B,768 each]
+                 │
+                 └─→ (1 + gamma) * Vision + beta
+                     ↓
+                 Fused [B,768]
+
+Key: Text MODULATES vision (one-way)
+
+
+2. CrossAttentionFusion (cross_attention_fusion.py)
+----------------------------------------------------
+Vision [B,768] ──┐
+                 ├─→ Vision attends to Text ──┐
+Text [B,768] ────┘                            │
+                 ┌───────────────────────────┼─→ Concat [B,1536] ─→ MLP ─→ Fused [B,768]
+                 │                            │
+Vision [B,768] ──┼─→ Text attends to Vision ─┘
+Text [B,768] ────┘
+
+Key: BOTH modalities attend to EACH OTHER (bidirectional)
+
